@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="190" viewBox="0 0 600 190" role="img" aria-label="AI RESUME BUILDER">
+<title>AI RESUME BUILDER — LEGENDARY</title>
+<defs>
+  <linearGradient id="bm01" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#05010f"/><stop offset="100%" stop-color="#0b0322"/></linearGradient>
+  <radialGradient id="gm01" cx="4%" cy="0%" r="92%"><stop offset="0%" stop-color="#00e5ff" stop-opacity=".26"/><stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="sm01" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#00e5ff" stop-opacity="0"/><stop offset="50%" stop-color="#00e5ff" stop-opacity=".15"/><stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/></linearGradient>
+  <pattern id="pm01" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="1" fill="#00e5ff" opacity=".05"/></pattern>
+  <style><![CDATA[
+    .fm01 { font-family:'JetBrains Mono','Fira Code',ui-monospace,'SF Mono',Menlo,Consolas,monospace }
+    @keyframes sm01 { 0% { transform:translateX(-200px) } 100% { transform:translateX(640px) } }
+    @keyframes pm01 { 0%,100% { opacity:1 } 50% { opacity:.25 } }
+    @keyframes am01 { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    .sm01 { animation:sm01 5s cubic-bezier(.4,0,.2,1) infinite }
+    .pm01 { animation:pm01 1.5s ease-in-out infinite }
+    .am01 { animation:am01 3s ease-in-out infinite }
+  ]]></style>
+</defs>
+<g>
+  <rect width="600" height="190" fill="url(#bm01)"/>
+  <rect width="600" height="190" fill="url(#gm01)"/>
+  <rect width="600" height="190" fill="url(#pm01)"/>
+  <rect class="sm01" x="0" y="0" width="200" height="190" fill="url(#sm01)"/>
+  <rect class="am01" x="0" y="0" width="3" height="190" fill="#00e5ff"/>
+  <text class="fm01" x="576" y="60" font-size="48" font-weight="700" fill="#00e5ff" fill-opacity=".12" text-anchor="end">01</text>
+  <text class="fm01" x="30" y="40" font-size="9.5" letter-spacing="3" fill="#00e5ff" opacity=".8">// MISSION_01</text>
+  <text class="fm01" x="30" y="70" font-size="18" font-weight="700" letter-spacing="1.5" fill="#eaf6ff">AI RESUME BUILDER</text>
+  <text class="fm01" x="576" y="88" font-size="9" letter-spacing="3" fill="#00e5ff" opacity=".85" text-anchor="end">LEGENDARY</text>
+  <text class="fm01" x="30" y="104" font-size="11.5" fill="#9fb8cf">AI-powered resume generation,</text><text class="fm01" x="30" y="121" font-size="11.5" fill="#9fb8cf">formatting and tailoring with</text><text class="fm01" x="30" y="138" font-size="11.5" fill="#9fb8cf">real-time suggestions.</text>
+  <rect x="30" y="144" width="77" height="20" rx="3" fill="#00e5ff" fill-opacity=".10" stroke="#00e5ff" stroke-opacity=".4"/><text class="fm01" x="68" y="158" font-size="9.5" letter-spacing="1" fill="#00e5ff" text-anchor="middle">TypeScript</text><rect x="114" y="144" width="44" height="20" rx="3" fill="#00e5ff" fill-opacity=".10" stroke="#00e5ff" stroke-opacity=".4"/><text class="fm01" x="136" y="158" font-size="9.5" letter-spacing="1" fill="#00e5ff" text-anchor="middle">React</text><rect x="164" y="144" width="77" height="20" rx="3" fill="#00e5ff" fill-opacity=".10" stroke="#00e5ff" stroke-opacity=".4"/><text class="fm01" x="203" y="158" font-size="9.5" letter-spacing="1" fill="#00e5ff" text-anchor="middle">PostgreSQL</text>
+  <circle class="pm01" cx="503" cy="152" r="3.6" fill="#00ff9d"/>
+  <text class="fm01" x="576" y="156" font-size="9.5" letter-spacing="2" fill="#00ff9d" text-anchor="end">DEPLOYED</text>
+  <g stroke="#00e5ff" stroke-width="1.4" fill="none" opacity=".5">
+    <path d="M12 28 V12 H28"/><path d="M572 12 H588 V28"/>
+    <path d="M12 162 V178 H28"/><path d="M588 162 V178 H572"/>
+  </g>
+  <rect x=".6" y=".6" width="598.8" height="188.8" fill="none" stroke="#00e5ff" stroke-opacity=".28"/>
+</g>
+</svg>
