@@ -1,87 +1,60 @@
-"""Shared design tokens. Every panel imports these so the page reads as one screen."""
-W        = 1200          # every panel is exactly this wide
-RAIL     = 62            # left rail column, continuous down the whole page
-PAD      = 92            # content starts here
+"""
+Editorial design system.
+Warm paper, heavy grotesk display type, hairline rules, one vermilion accent.
+Every panel imports these so the whole page reads as one printed object.
+"""
+W      = 1200
+MARGIN = 84                       # generous outer margin — air is the point
+COL    = (W - MARGIN*2) / 12      # 12-column grid
+grid   = lambda n: MARGIN + COL*n
 
-BG0, BG1 = "#05010f", "#0b0322"
-INK      = "#eaf6ff"
-MUTE     = "#7d94ad"
-DIM      = "#4a6076"
-CYAN     = "#00e5ff"
-VIOLET   = "#a855ff"
-GOLD     = "#ffb800"
-GREEN    = "#00ff9d"
-ROSE     = "#ff2d78"
+PAPER  = "#f2efe6"
+PAPER2 = "#e8e3d6"
+INK    = "#14110f"
+INK60  = "#5c554d"
+INK35  = "#9a9288"
+RULE   = "#c9c2b4"
+RED    = "#e8330a"
+BLUE   = "#1b3fa0"
 
-MONO = "'JetBrains Mono','Fira Code',ui-monospace,'SF Mono',Menlo,Consolas,monospace"
-
-
-def defs(uid, h, glow=True):
-    """Gradients/patterns shared by every panel. uid keeps ids unique per file."""
-    g = f'''
-  <linearGradient id="bg{uid}" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0%" stop-color="{BG0}"/><stop offset="100%" stop-color="{BG1}"/>
-  </linearGradient>
-  <linearGradient id="rail{uid}" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="{CYAN}" stop-opacity=".55"/>
-    <stop offset="50%" stop-color="{VIOLET}" stop-opacity=".45"/>
-    <stop offset="100%" stop-color="{CYAN}" stop-opacity=".55"/>
-  </linearGradient>
-  <linearGradient id="sweep{uid}" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stop-color="{CYAN}" stop-opacity="0"/>
-    <stop offset="50%" stop-color="{CYAN}" stop-opacity=".13"/>
-    <stop offset="100%" stop-color="{CYAN}" stop-opacity="0"/>
-  </linearGradient>
-  <pattern id="sl{uid}" width="3" height="3" patternUnits="userSpaceOnUse">
-    <rect width="3" height="1" fill="#9fe6ff" opacity=".05"/>
-  </pattern>'''
-    if glow:
-        g += f'''
-  <filter id="gl{uid}" x="-60%" y="-60%" width="220%" height="220%">
-    <feGaussianBlur stdDeviation="3.2" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>'''
-    return g
+DISP = "'Helvetica Neue',Helvetica,Arial,'Segoe UI',sans-serif"
+MONO = "'JetBrains Mono','SF Mono',ui-monospace,Menlo,Consolas,monospace"
 
 
-def css(uid, extra=""):
+def label(uid, x, y, txt, fill=None, size=9.5, anchor="start"):
+    """Small-caps tracking-out label — the workhorse of the system."""
+    return (f'<text class="d{uid}" x="{x}" y="{y}" font-size="{size}" font-weight="600" '
+            f'letter-spacing="2.6" fill="{fill or INK35}" text-anchor="{anchor}">{txt}</text>')
+
+
+def rule(x1, y, x2, colour=RULE, w=1):
+    return f'<path d="M{x1} {y} H{x2}" stroke="{colour}" stroke-width="{w}"/>'
+
+
+def base_css(uid):
     return f'''
-    .f{uid} {{ font-family:{MONO} }}
-    @keyframes sw{uid} {{ 0% {{ transform:translateX(-320px) }} 100% {{ transform:translateX({W+60}px) }} }}
-    @keyframes pu{uid} {{ 0%,100% {{ opacity:1 }} 50% {{ opacity:.24 }} }}
-    .sw{uid} {{ animation:sw{uid} 7s cubic-bezier(.4,0,.2,1) infinite }}
-    .pu{uid} {{ animation:pu{uid} 1.6s ease-in-out infinite }}
-    {extra}'''
+    .d{uid} {{ font-family:{DISP} }}
+    .m{uid} {{ font-family:{MONO} }}
+    @keyframes band{uid} {{ 0% {{ transform:translateX(-460px) }} 100% {{ transform:translateX({W+80}px) }} }}
+    @keyframes soft{uid} {{ 0%,100% {{ opacity:1 }} 50% {{ opacity:.45 }} }}
+    .band{uid} {{ animation:band{uid} 9s cubic-bezier(.45,0,.25,1) infinite }}
+    .soft{uid} {{ animation:soft{uid} 2.4s ease-in-out infinite }}'''
 
 
-def shell(uid, h, num, eyebrow, title, inner, bg_extra="", head=True):
-    """Flat-edged panel + continuous left rail. No rounding: panels butt into one slab."""
-    ticks = "".join(
-        f'<rect x="{RAIL-13}" y="{y}" width="{9 if y % 60 else 15}" height="1.4" '
-        f'fill="{CYAN}" opacity="{.42 if y % 60 else .8}"/>'
-        for y in range(24, h - 12, 20))
-    header = ""
-    if head:
-        header = f'''
-  <text class="f{uid}" x="{PAD}" y="46" font-size="11" letter-spacing="5" fill="{GREEN}" opacity=".9">// {eyebrow}</text>
-  <text class="f{uid}" x="{PAD}" y="82" font-size="27" font-weight="700" letter-spacing="7" fill="{INK}">{title}</text>
-  <path d="M{PAD} 98 H{W-PAD}" stroke="{CYAN}" stroke-opacity=".2"/>'''
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h}" viewBox="0 0 {W} {h}" role="img" aria-label="{title}">
-<title>{title}</title>
-<defs>{defs(uid, h)}
-  <style><![CDATA[{css(uid, inner[1])}]]></style>
+def panel(uid, h, body, extra_defs="", extra_css="", bg=PAPER, seam=True):
+    """Flat-edged paper panel. Panels butt together into one continuous sheet."""
+    top = rule(0, 0.5, W, RULE) if seam else ""
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h}" viewBox="0 0 {W} {h}" role="img">
+<defs>
+  <linearGradient id="bd{uid}" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="{RED}" stop-opacity="0"/>
+    <stop offset="50%" stop-color="{RED}" stop-opacity=".07"/>
+    <stop offset="100%" stop-color="{RED}" stop-opacity="0"/>
+  </linearGradient>{extra_defs}
+  <style><![CDATA[{base_css(uid)}{extra_css}]]></style>
 </defs>
-<g>
-  <rect width="{W}" height="{h}" fill="url(#bg{uid})"/>
-  {bg_extra}
-  <rect width="{W}" height="{h}" fill="url(#sl{uid})"/>
-  <rect class="sw{uid}" x="0" y="0" width="320" height="{h}" fill="url(#sweep{uid})"/>
-  <rect x="{RAIL}" y="0" width="1.4" height="{h}" fill="url(#rail{uid})"/>
-  {ticks}
-  <text class="f{uid}" x="{RAIL-30}" y="{h/2}" font-size="20" font-weight="700" letter-spacing="4"
-        fill="{CYAN}" opacity=".85" text-anchor="middle"
-        transform="rotate(-90 {RAIL-30} {h/2})">{num}</text>
-  {header}
-  {inner[0]}
-</g>
+<rect width="{W}" height="{h}" fill="{bg}"/>
+<rect class="band{uid}" x="0" y="0" width="460" height="{h}" fill="url(#bd{uid})"/>
+{top}
+{body}
 </svg>'''

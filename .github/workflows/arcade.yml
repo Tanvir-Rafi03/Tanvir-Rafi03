@@ -20,14 +20,14 @@ jobs:
       - name: Render NEURAL_GRID from live contribution data
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python3 scripts/gen_arcade.py "${GITHUB_REPOSITORY_OWNER}" assets/03-campaign.svg
+        run: python3 scripts/gen_arcade.py "${GITHUB_REPOSITORY_OWNER}" assets/02-record.svg
 
       - name: Commit if the grid changed
         run: |
-          if [[ -n "$(git status --porcelain assets/03-campaign.svg)" ]]; then
+          if [[ -n "$(git status --porcelain assets/02-record.svg)" ]]; then
             git config user.name  "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add assets/03-campaign.svg
+            git add assets/02-record.svg
             git commit -m "chore: refresh contribution arcade"
             git push
           else
