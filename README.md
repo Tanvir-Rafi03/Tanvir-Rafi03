@@ -104,7 +104,7 @@ both beautiful and functional.
 
 <div align="center">
 
-<img src="https://github-readme-streak-stats.herokuapp.com/?user=Tanvir-Rafi03&background=04001A&border=00BFFF&stroke=00BFFF&ring=00BFFF&fire=00C853&currStreakNum=EAF6FF&sideNums=EAF6FF&currStreakLabel=00BFFF&sideLabels=BCD6F0&dates=5A7FA0&border_radius=8" alt="Contribution streak">
+[![Last push](https://img.shields.io/github/last-commit/Tanvir-Rafi03/Portfolio?style=for-the-badge&logo=git&logoColor=00C853&label=LAST%20PUSH&color=04001A&labelColor=04001A)](https://github.com/Tanvir-Rafi03/Portfolio/commits) [![Repos](https://img.shields.io/badge/PUBLIC_REPOS-15-04001A?style=for-the-badge&logo=github&logoColor=00BFFF&labelColor=04001A)](https://github.com/Tanvir-Rafi03?tab=repositories) [![Since](https://img.shields.io/github/created-at/Tanvir-Rafi03/Portfolio?style=for-the-badge&logo=github&logoColor=BF80FF&label=SHIPPING%20SINCE&color=04001A&labelColor=04001A)](https://github.com/Tanvir-Rafi03)
 
 <br><br>
 
