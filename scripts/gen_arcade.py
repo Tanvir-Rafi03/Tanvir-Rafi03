@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 """
-NO. 03 — ONE YEAR
-A year of real GitHub contributions typeset as an editorial data spread:
-precise squares in a vermilion tint ramp on paper stock, with a slow scan
-travelling across the field. Pure SVG. No JS, no external assets.
+CHUNK MAP — a year of real GitHub contributions rendered as placed blocks.
+Quiet days are dirt; busy days become grass, emerald and diamond ore.
+Pure SVG, pixel-snapped. No JS, no external assets.
 
 Usage:  python3 scripts/gen_arcade.py <username> [out.svg]
 Needs:  GH_TOKEN / GITHUB_TOKEN in env (GraphQL contributions API).
 """
 import json, os, subprocess, sys, xml.dom.minidom
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from design import *
+from mc import *
 
-ROWS  = 7
-CELL, GAP = 15.0, 4.5
-PITCH = CELL + GAP
-Y0    = 214
-RAMP  = ["#e2ddd0", "#f4c0af", "#ef9070", "#ec5c33", "#e8330a"]
+ROWS = 7
+# 0 dirt · 1 coarse grass · 2 grass · 3 emerald · 4 diamond
+TIER = [("#6b4423", "#54341b", None),
+        ("#8a7b3f", "#6d612f", None),
+        (GRASS_T, GRASS_S, None),
+        ("#9c9c9c", "#7b7b7b", EMERALD),
+        ("#9c9c9c", "#7b7b7b", DIAMOND)]
+NAMES = ["DIRT", "COARSE DIRT", "GRASS BLOCK", "EMERALD ORE", "DIAMOND ORE"]
 MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]
 
 
@@ -29,14 +31,14 @@ def fetch(user):
     return json.loads(out)["data"]["user"]["contributionsCollection"]["contributionCalendar"]
 
 
-def level(c, peak):
+def lvl(c, peak):
     if c <= 0: return 0
     q = c / peak if peak else 1
     return 4 if q > .5 else 3 if q > .25 else 2 if q > .1 else 1
 
 
 def build(cal, user):
-    uid   = "c"
+    uid   = "k"
     weeks = cal["weeks"]; cols = len(weeks); total = cal["totalContributions"]
     day, dates = {}, {}
     for c, wk in enumerate(weeks):
@@ -45,81 +47,78 @@ def build(cal, user):
             dates[(c, int(d["weekday"]))] = d["date"]
     peak   = max(day.values()) if day else 0
     active = sum(1 for v in day.values() if v > 0)
-    seq  = [day[(c,r)] for c in range(cols) for r in range(ROWS) if (c,r) in day]
+    seq = [day[(c,r)] for c in range(cols) for r in range(ROWS) if (c,r) in day]
     best = run = 0
     for v in seq:
         run = run + 1 if v > 0 else 0
         best = max(best, run)
 
-    span  = W - MARGIN*2
-    pitch = (span + GAP) / cols
-    cw    = pitch - GAP
+    B, GAP = 18, 2
+    P      = B + GAP
+    gw     = cols*P - GAP
+    X0     = (W - gw)//2
+    Y0     = 148
+    H      = Y0 + ROWS*P + 150
 
-    cells = []
+    cells, counts = [], [0]*5
     for c in range(cols):
         for r in range(ROWS):
             if (c,r) not in day: continue
             n  = day[(c,r)]
-            lv = level(n, peak)
-            x  = MARGIN + c*pitch
-            y  = Y0 + r*PITCH
-            ph = (c*0.055 + r*0.09) % 4.5
-            anim = (f'<animate attributeName="opacity" values="1;.55;1" keyTimes="0;.5;1" '
-                    f'dur="4.5s" begin="{ph:.2f}s" repeatCount="indefinite"/>') if lv else ''
-            cells.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{cw:.1f}" height="{CELL}" '
-                         f'fill="{RAMP[lv]}" opacity="1">{anim}<title>{dates[(c,r)]}: {n}</title></rect>')
+            L  = lvl(n, peak)
+            counts[L] += 1
+            top, side, ore = TIER[L]
+            x, y = X0 + c*P, Y0 + r*P
+            g = block(x, y, B, top, side, ore)
+            if L >= 3:
+                g = (f'<g class="or{uid}" style="animation-delay:{(c*0.07+r*0.11)%2.8:.2f}s">{g}</g>')
+            cells.append(f'{g}<rect x="{x}" y="{y}" width="{B}" height="{B}" fill="#0000"><title>{dates[(c,r)]}: {n}</title></rect>')
 
     months, seen = [], None
     for c, wk in enumerate(weeks):
         m = int(wk["firstDay"][5:7])
         if m != seen and c < cols-1:
-            months.append(label(uid, MARGIN + c*pitch, Y0-16, MONTHS[m-1], INK35, 8.5))
+            months.append(text(MONTHS[m-1], X0 + c*P, Y0-22, 2, "#c8c8c8"))
             seen = m
 
-    H = Y0 + ROWS*PITCH + 132
-    stats = [("CONTRIBUTIONS", total), ("ACTIVE DAYS", active),
-             ("BUSIEST DAY", peak), ("LONGEST RUN", best)]
-    stat_svg = ""
-    for i,(k,v) in enumerate(stats):
-        x = grid(i*1.62)
-        stat_svg += (rule(x, H-96, x + COL*1.35)
-                     + label(uid, x, H-76, k)
-                     + f'<text class="d{uid}" x="{x}" y="{H-46}" font-size="30" font-weight="700" '
-                       f'letter-spacing="-1.4" fill="{INK}">{v}</text>')
+    legend, lx = "", X0
+    for i in range(5):
+        legend += block(lx, H-118, 16, TIER[i][0], TIER[i][1], TIER[i][2])
+        legend += text(NAMES[i], lx+22, H-114, 2, "#d0d0d0")
+        lx += 26 + text_w(NAMES[i], 2) + 26
 
-    gw = span
-    body = f'''
-  {label(uid, MARGIN, 46, "THE RECORD", RED)}
-  {label(uid, W-MARGIN, 46, "NO. 02", INK35, anchor="end")}
-  <text class="d{uid}" x="{MARGIN-4}" y="118" font-size="62" font-weight="800" letter-spacing="-3" fill="{INK}">One year of work</text>
-  <text class="d{uid}" x="{W-MARGIN}" y="118" font-size="62" font-weight="800" letter-spacing="-3" fill="{RED}" text-anchor="end">{total}</text>
-  {rule(MARGIN, 150, W-MARGIN, INK, 2)}
-  {label(uid, MARGIN, 176, f"{weeks[0]['firstDay']} — {weeks[-1]['contributionDays'][-1]['date']}", INK35)}
-  {"".join(months)}
-  {"".join(cells)}
-  <g clip-path="url(#gf{uid})">
-    <rect class="scan{uid}" x="0" y="{Y0-6}" width="150" height="{ROWS*PITCH+6}" fill="url(#sc{uid})"/>
-  </g>
-  {rule(MARGIN, Y0 + ROWS*PITCH + 22, W-MARGIN)}
-  {stat_svg}
-  {rule(MARGIN, H-24, W-MARGIN, INK, 2)}'''
+    stats = [("BLOCKS PLACED", total), ("DAYS MINED", active),
+             ("BEST DAY", peak), ("LONGEST RUN", best)]
+    st, sx = "", X0
+    for k, v in stats:
+        st += text(k, sx, H-84, 2, "#a8a8a8")
+        st += text(str(v), sx, H-62, 4, GOLD, True, GOLD_SH)
+        sx += 300
 
-    xd = f'''
-  <linearGradient id="sc{uid}" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stop-color="{INK}" stop-opacity="0"/>
-    <stop offset="50%" stop-color="{INK}" stop-opacity=".10"/>
-    <stop offset="100%" stop-color="{INK}" stop-opacity="0"/>
-  </linearGradient>
-  <clipPath id="gf{uid}"><rect x="{MARGIN}" y="{Y0-6}" width="{gw}" height="{ROWS*PITCH+6}"/></clipPath>'''
-    xc = f'''
-    @keyframes scan{uid} {{ 0% {{ transform:translateX({MARGIN-160}px) }} 100% {{ transform:translateX({MARGIN+gw+20}px) }} }}
-    .scan{uid} {{ animation:scan{uid} 7s cubic-bezier(.45,0,.25,1) infinite }}'''
-    return panel(uid, H, body, xd, xc)
+    body = (f'<rect width="{W}" height="{H}" fill="#2e2e2e"/>'
+            f'<rect width="{W}" height="{H}" fill="url(#st{uid})" opacity=".55"/>'
+            + bevel(X0-24, 56, gw+48, H-96, "#3c3c3c", "#565656", "#1e1e1e", 5)
+            + text("CHUNK MAP", X0, 82, 4, GOLD, True, GOLD_SH)
+            + text(f"{weeks[0]['firstDay']} TO {weeks[-1]['contributionDays'][-1]['date']}",
+                   X0+gw, 86, 2, "#b4b4b4", True, None, "end")
+            + "".join(months) + "".join(cells) + legend + st)
+
+    defs = f'''
+    <pattern id="st{uid}" width="32" height="32" patternUnits="userSpaceOnUse">
+      <rect width="32" height="32" fill="#7f7f7f"/><rect x="0" y="0" width="16" height="16" fill="#8b8b8b"/>
+      <rect x="16" y="16" width="16" height="16" fill="#737373"/><rect x="8" y="18" width="8" height="8" fill="#6b6b6b"/>
+    </pattern>'''
+    css = f'''
+    @keyframes or{uid} {{ 0%,100% {{ opacity:1 }} 50% {{ opacity:.62 }} }}
+    .or{uid} {{ animation:or{uid} 2.8s ease-in-out infinite }}'''
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
+            f'role="img" aria-label="Chunk map — {total} blocks placed" shape-rendering="crispEdges">'
+            f'<defs>{defs}<style><![CDATA[{css}]]></style></defs>{body}</svg>')
 
 
 if __name__ == "__main__":
     user = sys.argv[1] if len(sys.argv) > 1 else "Tanvir-Rafi03"
-    out  = sys.argv[2] if len(sys.argv) > 2 else "assets/02-record.svg"
+    out  = sys.argv[2] if len(sys.argv) > 2 else "assets/02-chunkmap.svg"
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     open(out, "w").write(build(fetch(user), user))
     xml.dom.minidom.parse(out)

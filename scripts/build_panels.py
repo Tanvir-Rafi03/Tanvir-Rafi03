@@ -1,220 +1,199 @@
 #!/usr/bin/env python3
-"""Builds the editorial profile sheet. Run from the repo root."""
-import base64, os, sys, xml.dom.minidom
+"""Builds the Minecraft-themed profile. Run from the repo root."""
+import base64, os, random, sys, xml.dom.minidom
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from design import *
+from mc import *
 
 ART = os.environ.get("ART_DIR", "art")
 OUT = "assets"
 b64 = lambda p: base64.b64encode(open(p, "rb").read()).decode()
-esc = lambda t: str(t).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+PX  = 'style="image-rendering:pixelated;image-rendering:crisp-edges"'
 
 
-# ══════════════════════════ 01 · MASTHEAD ══════════════════════════
-def masthead():
-    uid, H = "a", 560
-    face = b64(f"{ART}/face.jpg")
-    PX, PY, PR = 900, 268, 152
+def svg(uid, h, defs, css, body, w=W):
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" '
+            f'viewBox="0 0 {w} {h}" role="img" shape-rendering="crispEdges">'
+            f'<defs>{defs}<style><![CDATA[{css}]]></style></defs>{body}</svg>')
 
-    ticker = ("FULL-STACK DEVELOPER   ✦   UI/UX DESIGNER   ✦   TORONTO, CANADA   ✦   "
-              "OPEN TO OPPORTUNITIES   ✦   ") * 3
-    facts = [("BASED", "Toronto, CA"), ("FIELD", "Full-stack"),
-             ("SHIPPED", "15 repos"), ("STATUS", "Available")]
-    fact_svg = ""
-    for i, (k, v) in enumerate(facts):
-        x = grid(i * 1.62)
-        fact_svg += (rule(x, H - 96, x + COL * 1.35)
-                     + label(uid, x, H - 76, k)
-                     + f'<text class="d{uid}" x="{x}" y="{H-48}" font-size="20" font-weight="600" '
-                       f'letter-spacing="-.3" fill="{INK}">{esc(v)}</text>')
+
+# ══════════════════════ 01 · THE OVERWORLD ══════════════════════
+def world():
+    uid, H = "w", 512
+    skin = b64(f"{ART}/skin40.png")
+    GY, B = 344, 32
+
+    random.seed(4)
+    clouds = ""
+    for cy, cw, dur, o in [(58, 150, 46, 1), (118, 108, 62, .9), (86, 190, 78, .72)]:
+        seg = (f'<g><rect x="0" y="{cy}" width="{cw}" height="22" fill="#ffffff" opacity="{o}"/>'
+               f'<rect x="{cw*0.22:.0f}" y="{cy-14}" width="{cw*0.5:.0f}" height="14" fill="#ffffff" opacity="{o}"/></g>')
+        clouds += (f'<g class="cl{uid}" style="animation-duration:{dur}s">{seg}'
+                   f'<g transform="translate(700,0)">{seg}</g>'
+                   f'<g transform="translate(1400,0)">{seg}</g></g>')
+
+    ground = ""
+    for i in range(W // B + 1):
+        x = i * B
+        ground += block(x, GY, B, GRASS_T, GRASS_S)
+        for d in range(1, 6):
+            y = GY + d * B
+            if y > H: break
+            ground += block(x, y, B, DIRT, "#7a4d25")
+    random.seed(9)
+    for _ in range(10):
+        ground += block(random.randrange(0, W // B) * B, GY + random.choice([2, 3]) * B, B, STONE, STONE_D)
+    for ore in (DIAMOND, EMERALD, GOLD):
+        ground += block(random.randrange(0, W // B) * B, GY + random.choice([3, 4]) * B, B, STONE, STONE_D, ore)
+
+    # ── player, left ──
+    PXx, PYy, PS = 84, 172, 168
+    player = (f'<rect x="{PXx-6}" y="{PYy-6}" width="{PS+12}" height="{PS+12}" fill="#2f2115"/>'
+              f'<image href="data:image/png;base64,{skin}" x="{PXx}" y="{PYy}" width="{PS}" height="{PS}" {PX}/>'
+              f'<rect x="{PXx+PS/2-136}" y="{PYy-52}" width="272" height="36" fill="#000000" opacity=".55"/>'
+              + text("TANVIR_RAFI", PXx+PS/2, PYy-44, 4, TXT, True, None, "middle"))
+
+    # ── centred HUD, like the real game ──
+    HX, HW_, HY = 250, 700, 396
+    hearts = "".join(heart(HX + i*30, HY, 3) for i in range(10))
+    food   = "".join(block(HX + HW_ - 24 - i*30, HY, 24, "#c8873f", "#8d5c26") for i in range(10))
+    xpy    = HY + 42
+    hud = (f'<rect x="{HX-24}" y="{HY-18}" width="{HW_+48}" height="118" fill="#000000" opacity=".38"/>'
+           + hearts + food
+           + bevel(HX, xpy, HW_, 22, "#1c1c1c", "#2e2e2e", "#0d0d0d", 3)
+           + f'<rect x="{HX+3}" y="{xpy+3}" width="{HW_-6}" height="16" fill="#0f2a0d"/>'
+           + f'<rect x="{HX+3}" y="{xpy+3}" width="{(HW_-6)*0.71:.0f}" height="16" fill="{EMERALD}"/>'
+           + f'<rect x="{HX+3}" y="{xpy+3}" width="{(HW_-6)*0.71:.0f}" height="5" fill="#5cf58e"/>'
+           + text("15", HX + HW_/2, xpy + 28, 5, "#7fff9c", True, "#123d1b", "middle"))
 
     body = f'''
-  <g clip-path="url(#tick{uid})">
-    <text class="m{uid} tk{uid}" x="0" y="34" font-size="10.5" letter-spacing="3.4" fill="{INK35}">{ticker}</text>
-  </g>
-  {rule(0, 52, W)}
-
-  {label(uid, MARGIN, 96, "PORTFOLIO / 2026", RED)}
-  {label(uid, W-MARGIN, 96, "NO. 01", INK35, anchor="end")}
-
-  <text class="d{uid}" x="{MARGIN-8}" y="252" font-size="146" font-weight="800" letter-spacing="-7" fill="{INK}">TANVIR</text>
-  <text class="d{uid}" x="{MARGIN-8}" y="374" font-size="146" font-weight="800" letter-spacing="-7" fill="{RED}">RAFI</text>
-
+  <rect width="{W}" height="{H}" fill="url(#sky{uid})"/>
+  <rect x="1046" y="46" width="64" height="64" fill="#fff6b0"/>
+  <rect x="1058" y="58" width="40" height="40" fill="#ffffff"/>
+  {clouds}
+  {ground}
+  {player}
+  {text("MINECRAFT PROFILE", 60, 34, 4, GOLD, True, GOLD_SH)}
+  {text("SINGLEPLAYER / SURVIVAL / TORONTO", 60, 76, 3, "#eaf4ff")}
   <g>
-    <rect x="{MARGIN}" y="410" width="34" height="3" fill="{INK}"/>
-    <text class="d{uid}" x="{MARGIN+52}" y="418" font-size="17" font-weight="500" letter-spacing="-.2" fill="{INK60}">
-      I build interfaces that stay fast under load.
-    </text>
+    {text("FULL-STACK", 430, 150, 6, TXT)}
+    {text("DEVELOPER", 430, 202, 6, TXT)}
+    {text("UI / UX DESIGNER", 430, 258, 4, "#d8e8ff")}
+    {text("BUILDING THINGS THAT DON'T LAG", 430, 296, 3, "#c3d8f2")}
   </g>
+  {hud}'''
 
-  <g>
-    <clipPath id="pc{uid}"><circle cx="{PX}" cy="{PY}" r="{PR}"/></clipPath>
-    <circle cx="{PX}" cy="{PY}" r="{PR+16}" fill="{PAPER2}"/>
-    <g clip-path="url(#pc{uid})">
-      <image href="data:image/jpeg;base64,{face}" x="{PX-PR}" y="{PY-PR}" width="{PR*2}" height="{PR*2}"
-             preserveAspectRatio="xMidYMid slice" filter="url(#duo{uid})"/>
-      <rect class="ht{uid}" x="{PX-PR}" y="{PY-PR}" width="{PR*2}" height="{PR*2}" fill="url(#dots{uid})" opacity=".5"/>
-    </g>
-    <circle cx="{PX}" cy="{PY}" r="{PR}" fill="none" stroke="{INK}" stroke-width="1.5"/>
-    <circle class="soft{uid}" cx="{PX-PR-16}" cy="{PY}" r="5" fill="{RED}"/>
-    {label(uid, PX, PY+PR+52, "OPERATOR — TANVIR MAHMUD RAFI", INK35, anchor="middle")}
-  </g>
-
-  {fact_svg}
-  {rule(MARGIN, H-24, W-MARGIN, INK, 2)}'''
-
-    xd = f'''
-  <filter id="duo{uid}" color-interpolation-filters="sRGB">
-    <feColorMatrix type="saturate" values="0"/>
-    <feComponentTransfer>
-      <feFuncR type="table" tableValues="0.87 0.96"/>
-      <feFuncG type="table" tableValues="0.16 0.94"/>
-      <feFuncB type="table" tableValues="0.03 0.89"/>
-    </feComponentTransfer>
-  </filter>
-  <pattern id="dots{uid}" width="4" height="4" patternUnits="userSpaceOnUse">
-    <circle cx="1" cy="1" r=".85" fill="{PAPER}" opacity=".55"/>
-  </pattern>
-  <clipPath id="tick{uid}"><rect x="0" y="0" width="{W}" height="52"/></clipPath>'''
-
-    xc = f'''
-    @keyframes tk{uid} {{ 0% {{ transform:translateX(0) }} 100% {{ transform:translateX(-770px) }} }}
-    @keyframes ht{uid} {{ 0%,100% {{ transform:translate(0,0) }} 50% {{ transform:translate(2px,2px) }} }}
-    .tk{uid} {{ animation:tk{uid} 26s linear infinite }}
-    .ht{uid} {{ animation:ht{uid} 5s ease-in-out infinite }}'''
-    return panel(uid, H, body, xd, xc, seam=False)
+    defs = (f'<linearGradient id="sky{uid}" x1="0" y1="0" x2="0" y2="1">'
+            f'<stop offset="0%" stop-color="{SKY_T}"/><stop offset="100%" stop-color="{SKY_B}"/></linearGradient>')
+    css = f'''
+    @keyframes cl{uid} {{ 0% {{ transform:translateX(0) }} 100% {{ transform:translateX(-700px) }} }}
+    .cl{uid} {{ animation-name:cl{uid}; animation-timing-function:linear; animation-iteration-count:infinite }}'''
+    return svg(uid, H, defs, css, body)
 
 
-# ══════════════════════════ 03 · INDEX (skills) ══════════════════════════
-INDEX = [
-    ("FRONT OF HOUSE", [("React",4),("JavaScript",4),("TypeScript",3),("HTML & CSS",5),
-                        ("Tailwind",4),("Figma",3)]),
-    ("BACK OF HOUSE",  [("Node.js",3),("Express",3),("PostgreSQL",3),("MongoDB",3),
-                        ("MySQL",3),("Java",3)]),
-    ("WORKSHOP",       [("Git",4),("Vite",4),("Vercel",3),("Firebase",2),
-                        ("Unity",2),("PHP",2)]),
+# ══════════════════════ 03 · INVENTORY ══════════════════════
+INV = [
+    ("REACT",4,DIAMOND,"#2fbfae"), ("JS",4,GOLD,"#c9b93b"),
+    ("TS",3,LAPIS,"#1e4a94"), ("HTML+CSS",5,"#e0704a","#b0532f"),
+    ("TAILWIND",4,"#38bdf8","#2a8fbd"), ("FIGMA",3,"#a259ff","#7b41c4"),
+    ("NODE.JS",3,EMERALD,"#11a84a"), ("EXPRESS",3,"#b9b9b9","#8c8c8c"),
+    ("POSTGRES",3,"#4a9fd8","#367aa5"), ("MONGODB",3,"#4db33d","#3a8830"),
+    ("MYSQL",3,"#4fa8cc","#3b7f9b"), ("JAVA",3,"#e08b2f","#ab6823"),
+    ("GIT",4,REDSTONE,"#93211d"), ("VITE",4,"#bf80ff","#9160c4"),
+    ("VERCEL",3,"#e6e6e6","#a9a9a9"), ("FIREBASE",2,"#ffca28","#c79b1e"),
+    ("UNITY",2,"#9fa4ad","#787c84"), ("PHP",2,"#8892be","#69708f"),
 ]
 
 
-def index_panel():
-    uid, H = "b", 452
-    colw = (W - MARGIN*2 - 56*2) / 3
-    body = (label(uid, MARGIN, 46, "INDEX", RED)
-            + label(uid, W-MARGIN, 46, "NO. 03", INK35, anchor="end")
-            + f'<text class="d{uid}" x="{MARGIN-4}" y="118" font-size="62" font-weight="800" '
-              f'letter-spacing="-3" fill="{INK}">What I use</text>'
-            + rule(MARGIN, 150, W-MARGIN, INK, 2))
-    for ci, (cat, items) in enumerate(INDEX):
-        cx = MARGIN + ci * (colw + 56)
-        body += label(uid, cx, 186, cat, INK)
-        body += rule(cx, 198, cx + colw)
-        for si, (name, lv) in enumerate(items):
-            y = 232 + si * 36
-            dots = "".join(
-                f'<circle cx="{cx+colw-52+d*13}" cy="{y-5}" r="2.6" '
-                f'fill="{RED if d < lv else RULE}"'
-                + (f'><animate attributeName="opacity" values="1;.35;1" keyTimes="0;.5;1" '
-                   f'dur="3s" begin="{(ci*.4+si*.18+d*.1)%3:.2f}s" repeatCount="indefinite"/></circle>'
-                   if d < lv else '/>')
-                for d in range(5))
-            body += (f'<text class="d{uid}" x="{cx}" y="{y}" font-size="16" font-weight="500" '
-                     f'letter-spacing="-.2" fill="{INK}">{esc(name)}</text>'
-                     + dots
-                     + rule(cx, y + 13, cx + colw, PAPER2))
-    return panel(uid, H, body)
+def inventory():
+    uid, H = "i", 492
+    cols, S, GAP, RGAP = 9, 104, 8, 46
+    gw = cols*S + (cols-1)*GAP
+    x0 = (W - gw)//2
+    y0 = 128
+    body = (f'<rect width="{W}" height="{H}" fill="#3a3a3a"/>'
+            f'<rect width="{W}" height="{H}" fill="url(#dirt{uid})" opacity=".5"/>'
+            + bevel(x0-22, 56, gw+44, H-92, GUI, GUI_LT, GUI_DK, 6)
+            + text("INVENTORY", x0, 82, 4, "#404040", False))
+    for i,(name, cnt, top, side) in enumerate(INV):
+        r, c = divmod(i, cols)
+        x, y = x0 + c*(S+GAP), y0 + r*(S+RGAP)
+        body += slot(x, y, S)
+        body += f'<g class="it{uid}" style="animation-delay:{(i*0.17)%3.2:.2f}s">'
+        body += block(x+18, y+18, S-36, top, side, "#ffffff" if cnt >= 4 else None)
+        body += '</g>'
+        body += text(str(cnt), x+S-10, y+S-26, 3, TXT, True, None, "end")
+        body += text(name, x+S//2, y+S+10, 2, "#3d3d3d", False, None, "middle")
+    return svg(uid, H, f'''
+    <pattern id="dirt{uid}" width="32" height="32" patternUnits="userSpaceOnUse">
+      <rect width="32" height="32" fill="#6b4423"/><rect x="0" y="0" width="16" height="16" fill="#79502a"/>
+      <rect x="16" y="16" width="16" height="16" fill="#5e3b1e"/><rect x="8" y="20" width="8" height="8" fill="#83592f"/>
+    </pattern>''', f'''
+    @keyframes it{uid} {{ 0%,100% {{ transform:translateY(0) }} 50% {{ transform:translateY(-3px) }} }}
+    .it{uid} {{ animation:it{uid} 3.2s ease-in-out infinite }}''', body)
 
 
-# ══════════════════════════ 04 · WORK ══════════════════════════
-WORK = [
-    ("01","AI Resume Builder","TypeScript · React · PostgreSQL",
-     ["Generates, formats and tailors résumés","with real-time AI suggestions."],RED),
-    ("02","Portfolio","React 19 · Vite 7 · Lenis",
-     ["Boot sequence, command palette,","particle field, custom cursor."],INK),
-    ("03","EcoWorld","Node · Express · PostgreSQL",
-     ["Climate-solutions platform built on","REST routes and a Postgres store."],BLUE),
-    ("04","Photobooth","Electron · JavaScript",
-     ["Desktop photobooth with live filters","and retro printed photo strips."],RED),
-    ("05","NieR: Automata","HTML · CSS · JavaScript",
-     ["Cinematic tribute site — atmospheric","visuals and long fluid motion."],INK),
-    ("06","Classified","—",
-     ["Next build in progress.","Something is compiling."],INK35),
+# ══════════════════════ 04 · ADVANCEMENTS ══════════════════════
+ADV = [
+    ("AI RESUME BUILDER","TYPESCRIPT / REACT / POSTGRES","CHALLENGE COMPLETE!",DIAMOND,"#2fbfae",GOLD),
+    ("PORTFOLIO","REACT 19 / VITE 7 / LENIS","ADVANCEMENT MADE!",EMERALD,"#11a84a",TXT),
+    ("ECOWORLD","NODE / EXPRESS / POSTGRES","ADVANCEMENT MADE!","#4db33d","#3a8830",TXT),
+    ("PHOTOBOOTH","ELECTRON / JAVASCRIPT","ADVANCEMENT MADE!","#e0704a","#b0532f",TXT),
+    ("NIER AUTOMATA","HTML / CSS / JAVASCRIPT","ADVANCEMENT MADE!",GOLD,"#c9b93b",TXT),
+    ("CLASSIFIED","???","GOAL REACHED!",REDSTONE,"#93211d","#a8a8a8"),
 ]
-CW, CH = 600, 234
+AW, AH = 592, 170
 
 
-def work_card(num, title, stack, lines, accent):
-    uid = f"w{num}"
-    body = "".join(f'<text class="d{uid}" x="46" y="{140+i*24}" font-size="14.5" font-weight="400" '
-                   f'letter-spacing="-.1" fill="{INK60}">{esc(l)}</text>' for i, l in enumerate(lines))
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{CW}" height="{CH}" viewBox="0 0 {CW} {CH}" role="img" aria-label="{title}">
-<title>{title}</title>
-<defs>
-  <linearGradient id="bd{uid}" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stop-color="{accent}" stop-opacity="0"/>
-    <stop offset="50%" stop-color="{accent}" stop-opacity=".06"/>
-    <stop offset="100%" stop-color="{accent}" stop-opacity="0"/>
-  </linearGradient>
-  <style><![CDATA[
-    .d{uid} {{ font-family:{DISP} }} .m{uid} {{ font-family:{MONO} }}
-    @keyframes bd{uid} {{ 0% {{ transform:translateX(-260px) }} 100% {{ transform:translateX({CW+40}px) }} }}
-    @keyframes ar{uid} {{ 0%,100% {{ transform:translateX(0) }} 50% {{ transform:translateX(7px) }} }}
-    .bd{uid} {{ animation:bd{uid} 6.5s cubic-bezier(.45,0,.25,1) infinite }}
-    .ar{uid} {{ animation:ar{uid} 2.1s ease-in-out infinite }}
-  ]]></style>
-</defs>
-<rect width="{CW}" height="{CH}" fill="{PAPER}"/>
-<rect class="bd{uid}" x="0" y="0" width="260" height="{CH}" fill="url(#bd{uid})"/>
-<path d="M0 .5 H{CW}" stroke="{RULE}"/><path d="M.5 0 V{CH}" stroke="{RULE}"/>
-<text class="d{uid}" x="46" y="74" font-size="46" font-weight="800" letter-spacing="-2" fill="{accent}" opacity=".22">{num}</text>
-<text class="d{uid}" x="118" y="74" font-size="27" font-weight="700" letter-spacing="-1" fill="{INK}">{esc(title)}</text>
-<path d="M46 92 H{CW-46}" stroke="{RULE}"/>
-<text class="d{uid}" x="46" y="116" font-size="9.5" font-weight="600" letter-spacing="2.4" fill="{accent}">{esc(stack)}</text>
-{body}
-<g class="ar{uid}"><path d="M{CW-72} {CH-46} h26 m-7 -7 l7 7 l-7 7" stroke="{INK}" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text class="d{uid}" x="46" y="{CH-40}" font-size="9.5" font-weight="600" letter-spacing="2.4" fill="{INK35}">VIEW PROJECT</text>
-</svg>'''
+def advancement(title, stack, kind, top, side, kind_col):
+    uid = "a" + title[:3].lower().replace(" ", "")
+    return svg(uid, AH, "", f'''
+    @keyframes gl{uid} {{ 0%,100% {{ opacity:.55 }} 50% {{ opacity:1 }} }}
+    @keyframes bb{uid} {{ 0%,100% {{ transform:translateY(0) }} 50% {{ transform:translateY(-4px) }} }}
+    .gl{uid} {{ animation:gl{uid} 2.6s ease-in-out infinite }}
+    .bb{uid} {{ animation:bb{uid} 3s ease-in-out infinite }}''',
+    f'''
+  <rect width="{AW}" height="{AH}" fill="#0f0f0f"/>
+  {bevel(10, 14, AW-20, AH-28, "#100010", "#4b1ba0", "#2d0a63", 4)}
+  <rect class="gl{uid}" x="14" y="18" width="{AW-28}" height="4" fill="{top}" opacity=".7"/>
+  <g class="bb{uid}">{block(42, 52, 64, top, side, "#ffffff")}</g>
+  {text(kind, 128, 44, 3, kind_col)}
+  {text(title, 128, 74, 4, TXT)}
+  {text(stack, 128, 116, 2, "#9a9a9a")}
+  {text("[ OPEN ]", AW-34, 138, 3, "#7fb238", True, None, "end")}''', AW)
 
 
-# ══════════════════════════ 05 · COLOPHON ══════════════════════════
-LINKS = [("portfolio","PORTFOLIO","tanvirrafi.vercel.app"),
-         ("email","EMAIL","tmrafi@myseneca.ca"),
-         ("github","GITHUB","Tanvir-Rafi03"),
-         ("linkedin","LINKEDIN","connect")]
-LW, LH = 300, 132
+# ══════════════════════ 05 · HOTBAR ══════════════════════
+BAR = [("PORTFOLIO","TANVIRRAFI.VERCEL.APP",DIAMOND,"#2fbfae"),
+       ("EMAIL","TMRAFI@MYSENECA.CA",EMERALD,"#11a84a"),
+       ("GITHUB","TANVIR-RAFI03","#c0b0ff","#8f7fd0"),
+       ("LINKEDIN","CONNECT",LAPIS,"#1e4a94")]
+HW, HH = 300, 186
 
 
-def link_tile(slug, label_txt, value):
-    uid = f"l{slug}"
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{LW}" height="{LH}" viewBox="0 0 {LW} {LH}" role="img" aria-label="{label_txt} {value}">
-<title>{label_txt} — {value}</title>
-<defs>
-  <linearGradient id="bd{uid}" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stop-color="{RED}" stop-opacity="0"/><stop offset="50%" stop-color="{RED}" stop-opacity=".08"/>
-    <stop offset="100%" stop-color="{RED}" stop-opacity="0"/></linearGradient>
-  <style><![CDATA[
-    .d{uid} {{ font-family:{DISP} }}
-    @keyframes bd{uid} {{ 0% {{ transform:translateX(-150px) }} 100% {{ transform:translateX({LW+30}px) }} }}
-    @keyframes ar{uid} {{ 0%,100% {{ transform:translateX(0) }} 50% {{ transform:translateX(6px) }} }}
-    .bd{uid} {{ animation:bd{uid} 5.5s cubic-bezier(.45,0,.25,1) infinite }}
-    .ar{uid} {{ animation:ar{uid} 2s ease-in-out infinite }}
-  ]]></style>
-</defs>
-<rect width="{LW}" height="{LH}" fill="{INK}"/>
-<rect class="bd{uid}" x="0" y="0" width="150" height="{LH}" fill="url(#bd{uid})"/>
-<path d="M.5 0 V{LH}" stroke="#2e2a26"/>
-<text class="d{uid}" x="34" y="52" font-size="9.5" font-weight="600" letter-spacing="2.6" fill="{RED}">{label_txt}</text>
-<text class="d{uid}" x="34" y="82" font-size="15" font-weight="500" letter-spacing="-.2" fill="{PAPER}">{esc(value)}</text>
-<g class="ar{uid}"><path d="M{LW-58} 74 h22 m-6 -6 l6 6 l-6 6" stroke="{PAPER}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
-</svg>'''
+def hotbar_slot(label_txt, value, top, side):
+    uid = "h" + label_txt[:3].lower()
+    return svg(uid, HH, f'''
+    <pattern id="d{uid}" width="32" height="32" patternUnits="userSpaceOnUse">
+      <rect width="32" height="32" fill="#6b4423"/><rect x="0" y="0" width="16" height="16" fill="#79502a"/>
+      <rect x="16" y="16" width="16" height="16" fill="#5e3b1e"/></pattern>''', f'''
+    @keyframes bb{uid} {{ 0%,100% {{ transform:translateY(0) }} 50% {{ transform:translateY(-4px) }} }}
+    .bb{uid} {{ animation:bb{uid} 2.8s ease-in-out infinite }}''',
+    f'''
+  <rect width="{HW}" height="{HH}" fill="#3a3a3a"/>
+  <rect width="{HW}" height="{HH}" fill="url(#d{uid})" opacity=".45"/>
+  {bevel(HW/2-46, 26, 92, 92, SLOT, SLOT_DK, SLOT_LT, 4)}
+  <g class="bb{uid}">{block(HW/2-28, 44, 56, top, side, "#ffffff")}</g>
+  {text(label_txt, HW/2, 128, 3, GOLD, True, GOLD_SH, "middle")}
+  {text(value, HW/2, 150, 2, "#e8e8e8", True, None, "middle")}''', HW)
 
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    files = {"01-masthead.svg": masthead(), "03-index.svg": index_panel()}
-    for w in WORK:
-        files[f"work-{w[0]}.svg"] = work_card(*w)
-    for l in LINKS:
-        files[f"link-{l[0]}.svg"] = link_tile(*l)
+    files = {"01-world.svg": world(), "03-inventory.svg": inventory()}
+    for i, a in enumerate(ADV, 1):
+        files[f"adv-{i:02d}.svg"] = advancement(*a)
+    for b in BAR:
+        files[f"bar-{b[0].lower()}.svg"] = hotbar_slot(*b)
     for n, s in files.items():
         p = os.path.join(OUT, n); open(p, "w").write(s); xml.dom.minidom.parse(p)
     print(f"built {len(files)} panels, all XML valid")
