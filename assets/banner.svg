@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="340" viewBox="0 0 1200 340" role="img" aria-label="Tanvir Rafi — Full-Stack Developer">
+  <title>TANVIR RAFI // Full-Stack Developer</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#03000f"/>
+      <stop offset="55%"  stop-color="#06001f"/>
+      <stop offset="100%" stop-color="#0a0033"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="26%" cy="52%" r="55%">
+      <stop offset="0%"   stop-color="#7000ff" stop-opacity="0.34"/>
+      <stop offset="65%"  stop-color="#00bfff" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="86%" cy="20%" r="45%">
+      <stop offset="0%"   stop-color="#00bfff" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sweep" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#00bfff" stop-opacity="0"/>
+      <stop offset="45%"  stop-color="#00bfff" stop-opacity="0.16"/>
+      <stop offset="55%"  stop-color="#ffffff" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#00bfff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="rule" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#00bfff" stop-opacity="0.9"/>
+      <stop offset="60%"  stop-color="#7000ff" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#7000ff" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="scanlines" width="3" height="3" patternUnits="userSpaceOnUse">
+      <rect width="3" height="1" fill="#7fd8ff" opacity="0.05"/>
+    </pattern>
+    <clipPath id="frame"><rect x="0" y="0" width="1200" height="340" rx="10"/></clipPath>
+    <style>
+      .mono { font-family: 'JetBrains Mono','Fira Code',ui-monospace,'SF Mono',Menlo,Consolas,monospace; }
+      @keyframes drift  { from { transform: translateY(0);   } to { transform: translateY(46px); } }
+      @keyframes slide  { from { transform: translateX(-1300px); } to { transform: translateX(1300px); } }
+      @keyframes blink  { 0%,45% { opacity:1 } 50%,95% { opacity:0 } 100% { opacity:1 } }
+      @keyframes pulse  { 0%,100% { opacity:1 } 50% { opacity:.3 } }
+      @keyframes jitterA{ 0%,88%,100%{ transform:translate(0,0); opacity:0 } 90%{ transform:translate(-4px,1px); opacity:.85 } 93%{ transform:translate(3px,-2px); opacity:.6 } 96%{ transform:translate(-2px,0); opacity:.75 } }
+      @keyframes jitterB{ 0%,88%,100%{ transform:translate(0,0); opacity:0 } 91%{ transform:translate(4px,-1px); opacity:.8 } 94%{ transform:translate(-3px,2px); opacity:.55 } 97%{ transform:translate(2px,0); opacity:.7 } }
+      @keyframes tear   { 0%,89%,100% { opacity:0 } 90%,92% { opacity:.9 } }
+      @keyframes bar    { 0% { width:0 } 70%,100% { width:104px } }
+      .grid  { animation: drift 2.6s linear infinite; }
+      .sweep { animation: slide 5.5s cubic-bezier(.4,0,.2,1) infinite; }
+      .cur   { animation: blink 1.05s steps(1) infinite; }
+      .dot   { animation: pulse 1.6s ease-in-out infinite; }
+      .gA    { animation: jitterA 6s steps(1) infinite; }
+      .gB    { animation: jitterB 6s steps(1) infinite; }
+      .tear  { animation: tear 6s steps(1) infinite; }
+      .bar   { animation: bar 3s ease-out infinite; }
+    </style>
+  </defs>
+  <g clip-path="url(#frame)">
+    <rect width="1200" height="340" fill="url(#sky)"/>
+    <rect width="1200" height="340" fill="url(#glowA)"/>
+    <rect width="1200" height="340" fill="url(#glowB)"/>
+    <g opacity="0.8">
+      <g class="grid">
+        <path d="M0 248 H1200 M0 271 H1200 M0 294 H1200 M0 317 H1200 M0 340 H1200 M0 363 H1200" stroke="#00bfff" stroke-opacity="0.42" stroke-width="1"/>
+      </g>
+      <g stroke="#7000ff" stroke-opacity="0.35" stroke-width="1">
+        <path d="M600 240 L-260 380 M600 240 L60 380 M600 240 L330 380 M600 240 L600 380 M600 240 L870 380 M600 240 L1140 380 M600 240 L1460 380"/>
+      </g>
+      <rect x="0" y="236" width="1200" height="2" fill="#00bfff" opacity="0.55"/>
+    </g>
+    <g stroke="#00bfff" stroke-opacity="0.10" stroke-width="1">
+      <path d="M150 0 V236 M420 0 V236 M780 0 V236 M1050 0 V236"/>
+    </g>
+    <rect width="1200" height="340" fill="url(#scanlines)"/>
+    <rect class="sweep" x="0" y="0" width="420" height="340" fill="url(#sweep)"/>
+    <text class="mono" x="70" y="86" font-size="15" letter-spacing="4" fill="#00c853" opacity="0.95">// SYS.PROFILE_LOADED</text>
+    <g>
+      <text class="mono gA" x="70" y="172" font-size="76" font-weight="700" letter-spacing="4" fill="#ff2d78">TANVIR RAFI</text>
+      <text class="mono gB" x="70" y="172" font-size="76" font-weight="700" letter-spacing="4" fill="#00ffe0">TANVIR RAFI</text>
+      <text class="mono"    x="70" y="172" font-size="76" font-weight="700" letter-spacing="4" fill="#eaf6ff">TANVIR RAFI</text>
+      <rect class="tear" x="70" y="132" width="540" height="7" fill="#04001a"/>
+      <rect class="tear" x="118" y="156" width="470" height="5" fill="#04001a"/>
+    </g>
+    <rect x="70" y="188" width="470" height="2" fill="url(#rule)"/>
+    <g>
+      <text class="mono" x="70" y="222" font-size="19" letter-spacing="2.5" fill="#00bfff">&#8250;</text>
+      <text class="mono" x="92" y="222" font-size="19" letter-spacing="2.5" fill="#bcd6f0">Full-Stack Developer &#183; UI/UX Designer</text>
+      <rect class="cur" x="628" y="207" width="10" height="20" fill="#00bfff"/>
+    </g>
+    <g class="mono" font-size="12" letter-spacing="2">
+      <g>
+        <rect x="70" y="248" width="122" height="26" rx="3" fill="#00c853" fill-opacity="0.10" stroke="#00c853" stroke-opacity="0.5"/>
+        <circle class="dot" cx="86" cy="261" r="4" fill="#00c853"/>
+        <text x="98" y="265" fill="#5ef08f">AVAILABLE</text>
+      </g>
+      <g>
+        <rect x="202" y="248" width="72" height="26" rx="3" fill="#00bfff" fill-opacity="0.08" stroke="#00bfff" stroke-opacity="0.42"/>
+        <text x="216" y="265" fill="#7fd8ff">REACT</text>
+      </g>
+      <g>
+        <rect x="284" y="248" width="106" height="26" rx="3" fill="#7000ff" fill-opacity="0.12" stroke="#bf80ff" stroke-opacity="0.45"/>
+        <text x="298" y="265" fill="#d3b8ff">NODE.JS</text>
+      </g>
+      <g>
+        <rect x="400" y="248" width="106" height="26" rx="3" fill="#00bfff" fill-opacity="0.08" stroke="#00bfff" stroke-opacity="0.42"/>
+        <text x="414" y="265" fill="#7fd8ff">TORONTO</text>
+      </g>
+    </g>
+    <g class="mono">
+      <rect x="900" y="66" width="232" height="150" rx="4" fill="#00bfff" fill-opacity="0.03" stroke="#00bfff" stroke-opacity="0.22"/>
+      <text x="918" y="90" font-size="11" letter-spacing="3" fill="#4a7fa8">SYS://TELEMETRY</text>
+      <path d="M918 100 H1114" stroke="#00bfff" stroke-opacity="0.2"/>
+      <text x="918"  y="126" font-size="11" letter-spacing="3" fill="#5a7fa0">STACK</text>
+      <text x="1114" y="126" font-size="13" letter-spacing="2" fill="#eaf6ff" text-anchor="end">FULL</text>
+      <text x="918"  y="154" font-size="11" letter-spacing="3" fill="#5a7fa0">REPOS</text>
+      <text x="1114" y="154" font-size="13" letter-spacing="2" fill="#eaf6ff" text-anchor="end">15</text>
+      <text x="918"  y="182" font-size="11" letter-spacing="3" fill="#5a7fa0">STATUS</text>
+      <circle class="dot" cx="1052" cy="178" r="4" fill="#00c853"/>
+      <text x="1114" y="182" font-size="13" letter-spacing="2" fill="#5ef08f" text-anchor="end">ONLINE</text>
+      <rect x="918" y="196" width="196" height="4" rx="2" fill="#00bfff" fill-opacity="0.12"/>
+      <rect class="bar" x="918" y="196" width="104" height="4" rx="2" fill="#00bfff"/>
+    </g>
+    <g stroke="#00bfff" stroke-width="2" fill="none" opacity="0.75">
+      <path d="M18 46 V18 H46"/>
+      <path d="M1154 18 H1182 V46"/>
+      <path d="M18 294 V322 H46"/>
+      <path d="M1182 294 V322 H1154"/>
+    </g>
+    <rect x="1" y="1" width="1198" height="338" rx="10" fill="none" stroke="#00bfff" stroke-opacity="0.16"/>
+  </g>
+</svg>
