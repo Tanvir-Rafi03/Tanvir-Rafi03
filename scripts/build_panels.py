@@ -152,10 +152,6 @@ PROJ = [("01","AI RESUME BUILDER","TYPESCRIPT / REACT / POSTGRES",CYAN),
         ("04","PHOTOBOOTH","ELECTRON / JAVASCRIPT","#ff7b54"),
         ("05","NIER: AUTOMATA","HTML / CSS / JS",GOLD),
         ("06","CLASSIFIED","BUILDING . . .",ROSE)]
-LINK = [("portfolio","PORTFOLIO","tanvirrafi.vercel.app",CYAN),
-        ("github","GITHUB","Tanvir-Rafi03",VIOLET),
-        ("email","EMAIL","tmrafi@myseneca.ca",GREEN),
-        ("linkedin","LINKEDIN","connect",GOLD)]
 TW, TH = 392, 152
 LW, LH = 294, 108
 
@@ -191,32 +187,6 @@ def tile(num, title, sub, col):
             f'fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>'
             f'<rect x=".6" y=".6" width="{TW-1.2}" height="{TH-1.2}" rx="8" fill="none" stroke="{col}" stroke-opacity=".3"/></svg>')
 
-
-def linktile(slug, label, value, col):
-    uid = "k" + slug
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{LW}" height="{LH}" viewBox="0 0 {LW} {LH}" '
-            f'role="img" aria-label="{label} {value}"><title>{label} — {value}</title><defs>'
-            f'<linearGradient id="b{uid}" x1="0" y1="0" x2="1" y2="1">'
-            f'<stop offset="0%" stop-color="#04001a"/><stop offset="100%" stop-color="#0a0330"/></linearGradient>'
-            f'<radialGradient id="g{uid}" cx="6%" cy="0%" r="96%">'
-            f'<stop offset="0%" stop-color="{col}" stop-opacity=".3"/><stop offset="100%" stop-color="{col}" stop-opacity="0"/></radialGradient>'
-            f'<linearGradient id="s{uid}" x1="0" y1="0" x2="1" y2="0">'
-            f'<stop offset="0%" stop-color="{col}" stop-opacity="0"/><stop offset="50%" stop-color="{col}" stop-opacity=".2"/>'
-            f'<stop offset="100%" stop-color="{col}" stop-opacity="0"/></linearGradient>'
-            f'<style><![CDATA[.m{uid}{{font-family:{MONO}}}'
-            f'@keyframes s{uid}{{0%{{transform:translateX(-140px)}}100%{{transform:translateX({LW+30}px)}}}}'
-            f'@keyframes a{uid}{{0%,100%{{transform:translateX(0)}}50%{{transform:translateX(6px)}}}}'
-            f'.s{uid}{{animation:s{uid} 4.4s cubic-bezier(.4,0,.2,1) infinite}}'
-            f'.a{uid}{{animation:a{uid} 2s ease-in-out infinite}}]]></style></defs>'
-            f'<rect width="{LW}" height="{LH}" rx="8" fill="url(#b{uid})"/>'
-            f'<rect width="{LW}" height="{LH}" rx="8" fill="url(#g{uid})"/>'
-            f'<rect class="s{uid}" x="0" y="0" width="140" height="{LH}" fill="url(#s{uid})"/>'
-            f'<rect x="0" y="8" width="3" height="{LH-16}" fill="{col}" opacity=".9"/>'
-            f'<text class="m{uid}" x="26" y="48" font-size="10" letter-spacing="3" fill="{col}">{label}</text>'
-            f'<text class="m{uid}" x="26" y="74" font-size="12.5" fill="{INK}">{value}</text>'
-            f'<g class="a{uid}"><path d="M{LW-42} {LH/2-5} h14 m-5 -5 l5 5 l-5 5" stroke="{col}" stroke-width="1.6" '
-            f'fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>'
-            f'<rect x=".6" y=".6" width="{LW-1.2}" height="{LH-1.2}" rx="8" fill="none" stroke="{col}" stroke-opacity=".32"/></svg>')
 
 
 
@@ -272,7 +242,6 @@ def artwork():
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     files = {"01-hero.svg": hero(), "03-artwork.svg": artwork()}
-    for l_ in LINK:  files[f"link-{l_[0]}.svg"] = linktile(*l_)
     for n, s in files.items():
         p = os.path.join(OUT, n); open(p, "w").write(s); xml.dom.minidom.parse(p)
         print(f"  {n:20} {len(s):>9,} bytes")

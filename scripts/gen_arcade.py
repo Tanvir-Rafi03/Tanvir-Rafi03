@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
-THE GRID — a year of real GitHub contributions as a 2D arcade maze.
+THE GRID — a year of real GitHub contributions as a retro snake game.
 
-The contribution calendar is already a dot field, so it is played as one:
-a chomper runs the maze row by row eating every day-cell, three ghosts
-trail behind it, and the busiest days become power pellets. Cells vanish
-as they are eaten and respawn behind the pack. Pure SVG + SMIL/CSS.
+A glowing data-worm runs the serpentine route through the calendar,
+consuming every day-cell it crosses while the score climbs. Cells flash,
+pop and respawn behind the tail. Flat 2D, CRT framing, pure SVG.
 
 Usage:  python3 scripts/gen_arcade.py <username> [out.svg]
 Needs:  GH_TOKEN / GITHUB_TOKEN in env (GraphQL contributions API).
@@ -19,13 +18,13 @@ ROWS       = 7
 DUR        = 22.0
 Y0         = 176
 
-MAZE   = "#1b3ea8"
-PAC    = "#ffd83d"
-GHOSTS = [("#ff3b57", 1.9), ("#00e5ff", 3.6), ("#a855ff", 5.3)]
+FRAME  = "#1d4fd0"
+WORM   = "#5cf7ff"
+SEGS   = 10          # head + body segments
 CYAN, VIOLET, GREEN, GOLD = "#00e5ff", "#a855ff", "#00ff9d", "#ffb800"
 INK, MUTE, DIM = "#eaf6ff", "#8fa8bf", "#54708a"
 MONO = "'JetBrains Mono','Fira Code',ui-monospace,'SF Mono',Menlo,Consolas,monospace"
-DOT  = ["#1b2a4d", "#1f6a94", "#22a3cf", "#3ad4f5", "#ffd83d"]
+DOT  = ["#18244a", "#1f6a94", "#22a3cf", "#3ad4f5", "#9dfbff"]
 MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]
 
 
@@ -44,25 +43,24 @@ def lvl(c, peak):
     return 4 if q > .5 else 3 if q > .25 else 2 if q > .1 else 1
 
 
-def wedge(r, deg):
-    """Chomper: a disc with a wedge removed, mouth opening along +x."""
-    a = math.radians(deg)
-    x1, y1 = r*math.cos(a), r*math.sin(a)
-    x2, y2 = r*math.cos(-a), r*math.sin(-a)
-    big = 1 if deg < 180 else 0
-    return f"M0,0 L{x1:.1f},{y1:.1f} A{r},{r} 0 {big},0 {x2:.1f},{y2:.1f} Z"
-
-
-def ghost(col, r=9):
-    """Classic ghost: dome, skirt, eyes."""
-    b = r * 0.95
-    return (f'<path d="M{-r},{b} L{-r},0 A{r},{r} 0 0,1 {r},0 L{r},{b} '
-            f'L{r*0.6:.1f},{b-r*0.34:.1f} L{r*0.2:.1f},{b} L{-r*0.2:.1f},{b-r*0.34:.1f} '
-            f'L{-r*0.6:.1f},{b} Z" fill="{col}"/>'
-            f'<circle cx="{-r*0.36:.1f}" cy="{-r*0.16:.1f}" r="{r*0.30:.1f}" fill="#fff"/>'
-            f'<circle cx="{r*0.36:.1f}" cy="{-r*0.16:.1f}" r="{r*0.30:.1f}" fill="#fff"/>'
-            f'<circle cx="{-r*0.30:.1f}" cy="{-r*0.16:.1f}" r="{r*0.15:.1f}" fill="#132043"/>'
-            f'<circle cx="{r*0.42:.1f}" cy="{-r*0.16:.1f}" r="{r*0.15:.1f}" fill="#132043"/>')
+def worm(dur, path):
+    """Head plus trailing segments, all riding the same route on a stagger."""
+    out = []
+    for i in range(SEGS):
+        lead = -(SEGS - i) * 0.052            # head is furthest along
+        t    = i / (SEGS - 1)
+        if i == 0:
+            g = (f'<circle r="12" fill="{WORM}" opacity=".18"/>'
+                 f'<rect x="-7.5" y="-7.5" width="15" height="15" rx="4" fill="#eafeff"/>'
+                 f'<rect x="-4" y="-4" width="8" height="8" rx="2.5" fill="{WORM}"/>')
+        else:
+            sz = 13 - 5.4 * t
+            g = (f'<rect x="{-sz/2:.1f}" y="{-sz/2:.1f}" width="{sz:.1f}" height="{sz:.1f}" '
+                 f'rx="{sz/3.4:.1f}" fill="{WORM}" opacity="{0.85 - 0.6*t:.2f}"/>')
+        out.append(f'<g>{g}<animateMotion dur="{dur}s" repeatCount="indefinite" '
+                   f'begin="{lead:.3f}s" path="{path}" keyPoints="0;1" keyTimes="0;1" '
+                   f'calcMode="linear"/></g>')
+    return "".join(out)
 
 
 def build(cal, user):
@@ -120,18 +118,7 @@ def build(cal, user):
         cells.append(f'<g class="ea{uid}" style="animation-delay:{d:.2f}s">{g}'
                      f'<title>{dates[(c,r)]}: {n}</title></g>')
 
-    # ── chomper + ghosts ──
-    mouths = [wedge(11, 40), wedge(11, 22), wedge(11, 5), wedge(11, 22)]
-    pac = (f'<g><path fill="{PAC}" d="{mouths[0]}">'
-           f'<animate attributeName="d" values="{";".join(mouths + [mouths[0]])}" '
-           f'dur="0.42s" repeatCount="indefinite" calcMode="linear"/></path>'
-           f'<animateMotion dur="{DUR}s" repeatCount="indefinite" path="{path}" '
-           f'rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="linear"/></g>')
-    pack = ""
-    for col, lag in GHOSTS:
-        pack += (f'<g opacity=".92">{ghost(col)}'
-                 f'<animateMotion dur="{DUR}s" repeatCount="indefinite" begin="-{lag:.2f}s" '
-                 f'path="{path}" keyPoints="0;1" keyTimes="0;1" calcMode="linear"/></g>')
+    snake = worm(DUR, path)
 
     # ── month ticks ──
     months, seen = "", None
@@ -151,8 +138,8 @@ def build(cal, user):
         score += (f'<text class="m{uid} {cls}" x="{X0+186}" y="86" font-size="30" font-weight="700" '
                   f'fill="{INK}" text-anchor="end" style="animation-delay:{k*seg:.2f}s">{cum[idx]}</text>')
 
-    lives = "".join(f'<g transform="translate({X0+gw-26-i*30},78)"><path fill="{PAC}" d="{wedge(9,35)}"/></g>'
-                    for i in range(3))
+    lives = "".join(f'<rect x="{X0+gw-22-i*26}" y="72" width="13" height="13" rx="3.5" '
+                    f'fill="{WORM}" opacity="{0.9 - i*0.22:.2f}"/>' for i in range(3))
 
     gy1 = Y0 + ROWS*PITCH - GAP
     H   = gy1 + 128
@@ -169,21 +156,20 @@ def build(cal, user):
   <rect width="{W}" height="{H}" fill="url(#sl{uid})"/>
 
   <text class="m{uid}" x="{X0}" y="46" font-size="11" letter-spacing="4" fill="{GREEN}">// CONTRIBUTION_ENGINE</text>
-  <text class="m{uid}" x="{X0}" y="62" font-size="10" letter-spacing="4" fill="{PAC}">1UP</text>
+  <text class="m{uid}" x="{X0}" y="62" font-size="10" letter-spacing="4" fill="{WORM}">SCORE</text>
   {score}
-  <text class="m{uid}" x="{X0+gw}" y="46" font-size="10" letter-spacing="4" fill="{MUTE}" text-anchor="end">HIGH SCORE</text>
+  <text class="m{uid}" x="{X0+gw}" y="46" font-size="10" letter-spacing="4" fill="{MUTE}" text-anchor="end">HI-SCORE</text>
   <text class="m{uid}" x="{X0+gw}" y="62" font-size="10" letter-spacing="3" fill="{GOLD}" text-anchor="end">{total}</text>
   {lives}
-  <text class="m{uid}" x="{X0+330}" y="86" font-size="10" letter-spacing="3" fill="{DIM}">READY!</text>
+  <text class="m{uid}" x="{X0+330}" y="86" font-size="10" letter-spacing="3" fill="{DIM}">DEFRAG RUNNING</text>
 
   <rect x="{X0-16}" y="{Y0-40}" width="{gw+32}" height="{ROWS*PITCH-GAP+56}" rx="10"
-        fill="none" stroke="{MAZE}" stroke-width="3"/>
+        fill="none" stroke="{FRAME}" stroke-width="3"/>
   <rect x="{X0-10}" y="{Y0-34}" width="{gw+20}" height="{ROWS*PITCH-GAP+44}" rx="7"
-        fill="none" stroke="{MAZE}" stroke-width="1.4" opacity=".55"/>
+        fill="none" stroke="{FRAME}" stroke-width="1.4" opacity=".55"/>
   {months}
   {"".join(cells)}
-  {pack}
-  {pac}
+  {snake}
   {stats}'''
 
     defs = f'''
