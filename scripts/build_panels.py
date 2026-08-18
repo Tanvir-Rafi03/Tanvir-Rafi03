@@ -219,10 +219,59 @@ def linktile(slug, label, value, col):
             f'<rect x=".6" y=".6" width="{LW-1.2}" height="{LH-1.2}" rx="8" fill="none" stroke="{col}" stroke-opacity=".32"/></svg>')
 
 
+
+# ═══════════════════════ 03 · ARTWORK ═══════════════════════
+def artwork():
+    uid, H = "a", 600
+    img = b64(f"{ART}/artwork.jpg")
+    random.seed(21)
+    rain = "".join(
+        f'<line class="rn{uid}" x1="{random.randint(-40,1240)}" y1="-80" '
+        f'x2="{random.randint(-40,1240)-14}" y2="{-80+random.randint(28,62)}" stroke="#cdefff" '
+        f'stroke-opacity="{random.uniform(.07,.20):.2f}" stroke-width="1" '
+        f'style="animation-delay:{random.uniform(0,2.1):.2f}s;animation-duration:{random.uniform(1.3,2.3):.2f}s"/>'
+        for _ in range(42))
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
+            f'role="img" aria-label="Cyberpunk cityscape artwork"><title>NIGHT CITY</title><defs>'
+            f'<linearGradient id="vg{uid}" x1="0" y1="0" x2="0" y2="1">'
+            f'<stop offset="0%" stop-color="#03000f" stop-opacity=".55"/>'
+            f'<stop offset="34%" stop-color="#03000f" stop-opacity="0"/>'
+            f'<stop offset="100%" stop-color="#03000f" stop-opacity=".72"/></linearGradient>'
+            f'<linearGradient id="swg{uid}" x1="0" y1="0" x2="1" y2="0">'
+            f'<stop offset="0%" stop-color="{CYAN}" stop-opacity="0"/>'
+            f'<stop offset="50%" stop-color="{CYAN}" stop-opacity=".085"/>'
+            f'<stop offset="100%" stop-color="{CYAN}" stop-opacity="0"/></linearGradient>'
+            f'<pattern id="sl{uid}" width="3" height="3" patternUnits="userSpaceOnUse">'
+            f'<rect width="3" height="1" fill="#9fe6ff" opacity=".05"/></pattern>'
+            f'<clipPath id="fr{uid}"><rect width="{W}" height="{H}" rx="10"/></clipPath>'
+            f'<style><![CDATA[.m{uid}{{font-family:{MONO}}}'
+            f'@keyframes rn{uid}{{0%{{transform:translateY(0)}}100%{{transform:translateY(700px)}}}}'
+            f'@keyframes sw{uid}{{0%{{transform:translateX(-420px)}}100%{{transform:translateX({W+60}px)}}}}'
+            f'@keyframes pu{uid}{{0%,100%{{opacity:1}}50%{{opacity:.25}}}}'
+            f'.rn{uid}{{animation-name:rn{uid};animation-timing-function:linear;animation-iteration-count:infinite}}'
+            f'.sw{uid}{{animation:sw{uid} 9s cubic-bezier(.4,0,.2,1) infinite}}'
+            f'.pu{uid}{{animation:pu{uid} 1.8s ease-in-out infinite}}]]></style></defs>'
+            f'<g clip-path="url(#fr{uid})">'
+            f'<image href="data:image/jpeg;base64,{img}" x="0" y="0" width="{W}" height="{H}" preserveAspectRatio="xMidYMid slice"/>'
+            f'<g>{rain}</g>'
+            f'<rect width="{W}" height="{H}" fill="url(#vg{uid})"/>'
+            f'<rect width="{W}" height="{H}" fill="url(#sl{uid})"/>'
+            f'<rect class="sw{uid}" x="0" y="0" width="420" height="{H}" fill="url(#swg{uid})"/>'
+            f'<text class="m{uid}" x="40" y="46" font-size="11" letter-spacing="4" fill="{GREEN}">// NIGHT_CITY</text>'
+            f'<circle class="pu{uid}" cx="{W-148}" cy="42" r="4" fill="{GREEN}"/>'
+            f'<text class="m{uid}" x="{W-40}" y="46" font-size="10" letter-spacing="3" fill="{MUTE}" text-anchor="end">RENDERING</text>'
+            f'<text class="m{uid}" x="40" y="{H-38}" font-size="14" letter-spacing="3" fill="{INK}" '
+            f'style="filter:drop-shadow(0 2px 10px rgba(3,0,15,.95))">BUILT AFTER DARK</text>'
+            f'<g stroke="{CYAN}" stroke-width="2" fill="none" opacity=".65">'
+            f'<path d="M22 52 V22 H52"/><path d="M{W-52} 22 H{W-22} V52"/>'
+            f'<path d="M22 {H-52} V{H-22} H52"/><path d="M{W-22} {H-52} V{H-22} H{W-52}"/></g>'
+            f'<rect x="1" y="1" width="{W-2}" height="{H-2}" rx="10" fill="none" stroke="{CYAN}" stroke-opacity=".2"/>'
+            f'</g></svg>')
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    files = {"01-hero.svg": hero()}
-    for p_ in PROJ:  files[f"proj-{p_[0]}.svg"] = tile(*p_)
+    files = {"01-hero.svg": hero(), "03-artwork.svg": artwork()}
     for l_ in LINK:  files[f"link-{l_[0]}.svg"] = linktile(*l_)
     for n, s in files.items():
         p = os.path.join(OUT, n); open(p, "w").write(s); xml.dom.minidom.parse(p)
